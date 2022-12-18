@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
@@ -10,12 +10,16 @@ export class UsersService {
   }
 
   getOne(id: string): User {
-    return this.users.find((user) => user.id === +id);
+    const user = this.users.find((user) => user.id === +id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found.`);
+    }
+    return user;
   }
 
-  deleteOne(id: string): boolean {
+  deleteOne(id: string) {
+    this.getOne(id);
     this.users = this.users.filter((user) => user.id !== +id);
-    return true;
   }
 
   createUser(userData: User) {
@@ -23,5 +27,11 @@ export class UsersService {
       id: this.users.length + 1,
       ...userData,
     });
+  }
+
+  updateOne(id: string, updateData: User) {
+    const user = this.getOne(id);
+    this.deleteOne(id);
+    this.users.push({ ...user, ...updateData });
   }
 }
