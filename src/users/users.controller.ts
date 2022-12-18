@@ -8,40 +8,30 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-
-interface User {
-  id: string;
-  name: string;
-  age: number;
-  sex: 'male' | 'female';
-}
+import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('users')
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
   @Get()
-  getAll() {
-    return 'This action returns all users';
-  }
-
-  @Get('/search')
-  search(@Query('sex') userSex: 'male' | 'female') {
-    return `search : ${userSex}`;
+  getAll(): User[] {
+    return this.usersService.getAll();
   }
 
   @Get('/:id')
-  getOne(@Param('id') userId: string) {
-    return `This action returns one user, id: ${userId}`;
+  getOne(@Param('id') userId: string): User {
+    return this.usersService.getOne(userId);
   }
 
   @Post()
   create(@Body() user: User) {
-    console.log('user::: ', user);
-    return 'This action adds a new user';
+    return this.usersService.createUser(user);
   }
 
   @Delete('/:id')
   remove(@Param('id') userId: string) {
-    return `This action removes a user, id: ${userId}`;
+    return this.usersService.deleteOne(userId);
   }
 
   @Patch('/:id')
